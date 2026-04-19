@@ -13,7 +13,7 @@
     const url = "https://script.google.com/macros/s/AKfycbw4B0R4lXF80LWxSdPezGY1kxoog4XjnNf0WMFpaOg2lQTsUWmSvuYDbScAt79X-S4Cog/exec?" 
                 + params.toString();
 
-    fetch(url)
+    fetch(url, { mode: 'no-cors' })  // 👈 esto resuelve el error Android
       .then(() => {
         document.getElementById('msg').textContent = '✅ ¡Confirmado correctamente!';
       })
