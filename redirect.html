@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script>
-    const params = window.location.search;
-    const destino = "https://script.google.com/macros/s/AKfycbw4B0R4lXF80LWxSdPezGY1kxoog4XjnNf0WMFpaOg2lQTsUWmSvuYDbScAt79X-S4Cog/exec" 
-                    + params 
-                    + "&authuser=0";
-    window.location.href = destino;
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmando...</title>
 </head>
 <body>
-  <p>Redirigiendo...</p>
+  <p id="msg">⏳ Procesando confirmación...</p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const url = "https://script.google.com/macros/s/AKfycbw4B0R4lXF80LWxSdPezGY1kxoog4XjnNf0WMFpaOg2lQTsUWmSvuYDbScAt79X-S4Cog/exec?" 
+                + params.toString();
+
+    fetch(url)
+      .then(() => {
+        document.getElementById('msg').textContent = '✅ ¡Confirmado correctamente!';
+      })
+      .catch(() => {
+        document.getElementById('msg').textContent = '❌ Error al confirmar. Inténtalo de nuevo.';
+      });
+  </script>
 </body>
 </html>
