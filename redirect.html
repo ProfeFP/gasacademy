@@ -52,7 +52,7 @@
 
     // Recollim paràmetres de la URL (email, nombre, etc.)
     const params = new URLSearchParams(window.location.search);
-    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}&accion=confirmar_url`;
+    const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}`;
 
     async function confirmar() {
       try {
