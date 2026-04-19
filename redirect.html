@@ -1,48 +1,39 @@
-<!DOCTYPE html>
-<html lang="ca">
+return `<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Confirmant assistència...</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>¡Asistencia confirmada!</title>
   <style>
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-      background: #f3f4f6; display: flex; align-items: center; justify-content: center; 
-      min-height: 100vh; margin: 0; padding: 20px; text-align: center; 
-    }
-    .card { background: white; padding: 32px 24px; border-radius: 16px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08); max-width: 420px; width: 100%; }
-    .icon { font-size: 48px; margin-bottom: 16px; }
-    h1 { color: #1f2937; margin: 0 0 12px 0; font-size: 22px; }
-    p { color: #4b5563; margin: 0 0 20px 0; line-height: 1.5; }
-    .spinner { border: 3px solid #e5e7eb; border-top: 3px solid #f59e0b; 
-               border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; 
-               margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .hidden { display: none; }
-    .btn { display: inline-block; background: #f59e0b; color: #000; 
-           padding: 12px 28px; border-radius: 50px; text-decoration: none; 
-           font-weight: 700; border: 2px solid #fbbf24; margin-top: 8px; }
+    body{margin:0;padding:40px 16px;background:#0a0e1a;font-family:'Segoe UI',Arial,sans-serif;
+         display:flex;justify-content:center;align-items:center;min-height:100vh;}
+    .card{background:#111827;border:1px solid #2a3a6e;border-radius:20px;
+          max-width:480px;width:100%;padding:40px 36px;text-align:center;}
+    .check{font-size:64px;margin-bottom:16px;}
+    h1{color:#ffffff;font-size:24px;margin:0 0 12px;}
+    p{color:#9fa8da;font-size:15px;line-height:1.6;margin:0 0 12px;}
+    .datos{background:#1a2444;border-radius:10px;padding:12px 20px;margin:20px 0;
+           color:#7c9ff5;font-size:14px;}
+    .barra{height:4px;border-radius:4px;
+           background:linear-gradient(90deg,#e53935,#fdd835,#1e88e5);margin-top:28px;}
   </style>
 </head>
 <body>
   <div class="card">
-    <!-- Estat inicial -->
-    <div id="loading">
-      <div class="spinner"></div>
-      <h1>Processant...</h1>
-      <p>Si us plau, espera uns segons.</p>
+    <div class="check">✅</div>
+    <h1>¡Gracias</h1>
+    <p>Tu asistencia al taller ha quedado confirmada.</p>
+    <div class="datos">
+      📅 Lunes, 20 de abril de 2026 — 17:00 a 18:00 h<br>
+      💻 Sesión en línea · Recibirás el enlace unos días antes
     </div>
-
-    <!-- Èxit -->
-    <div id="success" class="hidden">
-      <div class="icon">✅</div>
-      <h1>Confirmació rebuda!</h1>
-      <p id="msg">Gràcies per confirmar. Hem guardat la teva assistència correctament.</p>
-      <a href="https://el-teu-web.com" class="btn" target="_blank">Tornar al web</a>
-    </div>
+    <p style="font-size:13px;color:#5c6bc0;">
+      Si tienes alguna duda, escribe a<br>
+      <a href="mailto:profefpconia@gmail.com"
+         style="color:#7c9ff5;">profefpconia@gmail.com</a>
+    </p>
+    <div class="barra"></div>
   </div>
-
   <script>
     // ⚙️ CONFIGURACIÓ
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4B0R4lXF80LWxSdPezGY1kxoog4XjnNf0WMFpaOg2lQTsUWmSvuYDbScAt79X-S4Cog/exec";
