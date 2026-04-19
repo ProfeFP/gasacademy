@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // Lee los parámetros de la URL (?token=xxx&...) y los reenvía a tu Web App
+    const params = window.location.search;
+    const destino = "https://script.google.com/macros/s/TU_ID_AQUI/exec" + params;
+    window.location.href = destino;
+  </script>
+</head>
+<body>
+  <p>Redirigiendo...</p>
+</body>
+</html>
