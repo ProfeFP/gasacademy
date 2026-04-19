@@ -5,93 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Confirmant assistència...</title>
   <style>
+    /* Estils base per al "loading" i errors */
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
            background: #f3f4f6; display: flex; align-items: center; justify-content: center; 
-           min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
+           min-height: 100vh; margin: 0; padding: 20px; }
     .card { background: white; padding: 30px 40px; border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
     .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #f59e0b; 
                border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; 
                margin: 0 auto 20px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .success { color: #059669; font-size: 48px; margin-bottom: 16px; }
-    .error { color: #dc2626; font-size: 48px; margin-bottom: 16px; }
-    h1 { margin: 0 0 12px 0; color: #1f2937; font-size: 22px; }
-    p { margin: 0; color: #4b5563; line-height: 1.5; }
     .hidden { display: none; }
+    
+    /* ⚠️ Estils per quan s'injecti el teu HTML dinàmic */
+    #dynamic-content { width: 100%; }
+    #dynamic-content img { max-width: 100%; height: auto; }
+    #dynamic-content a { color: #f59e0b; text-decoration: none; font-weight: bold; }
+    #dynamic-content a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+
+  <!-- Contenedor principal -->
   <div class="card">
-    <!-- Estat: Carregant -->
+    
+    <!-- 1. Estat: Carregant (es veu al principi) -->
     <div id="loading">
       <div class="spinner"></div>
-      <h1>Processant...</h1>
-      <p>Si us plau, espera mentre confirmem la teva assistència.</p>
+      <p style="text-align:center; color:#6b7280;">Processant la teva confirmació...</p>
     </div>
 
-    <!-- Estat: Èxit -->
-    <div id="success" class="hidden">
-      <div class="success">✅</div>
-      <h1>Confirmat!</h1>
-      <p id="msg-success">Gràcies per confirmar. T'esperem!</p>
+    <!-- 2. Contenedor on injectarem el teu HTML personalitzat -->
+    <div id="dynamic-content" class="hidden"></div>
+
+    <!-- 3. Estat: Error (només si alguna cosa falla) -->
+    <div id="error" class="hidden" style="text-align:center; color:#dc2626;">
+      <p>❌ Ha ocorregut un error. Si us plau, intenta-ho més tard.</p>
+      <p id="error-detail" style="font-size:12px; color:#9ca3af; margin-top:10px;"></p>
     </div>
 
-    <!-- Estat: Error -->
-    <div id="error" class="hidden">
-      <div class="error">❌</div>
-      <h1>Ha sorgit un error</h1>
-      <p id="msg-error">No hem pogut processar la confirmació. Intenta-ho més tard.</p>
-    </div>
   </div>
 
   <script>
-    // ⚙️ CONFIGURACIÓ: Pega aquí la teva URL de Apps Script
+    // ⚙️ CONFIGURACIÓ: La teva URL de Apps Script
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4B0R4lXF80LWxSdPezGY1kxoog4XjnNf0WMFpaOg2lQTsUWmSvuYDbScAt79X-S4Cog/exec";
 
-    // Recollim els paràmetres de la URL actual (ex: ?email=xxx&nombre=yyy)
+    // Recollim paràmetres de la URL (email, nombre, etc.)
     const params = new URLSearchParams(window.location.search);
-    
-    // Construïm la URL final afegint l'acció
     const finalUrl = `${APPS_SCRIPT_URL}?${params.toString()}&accion=confirmar_url`;
 
     async function confirmar() {
       try {
-        // Fem la petició. NO fem servir 'no-cors' per poder llegir la resposta.
         const response = await fetch(finalUrl, { 
           method: 'GET',
-          mode: 'cors' // Important per rebre la resposta JSON
+          mode: 'cors',
+          redirect: 'follow'
         });
         
-        const data = await response.json();
+        const responseText = await response.text();
         
-        if (data.status === "ok") {
-          mostrarSuccess(data.nombre);
-        } else {
-          mostrarError("Resposta del servidor no vàlida.");
+        // Detectar si hem rebut HTML d'error en lloc de JSON
+        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+          throw new Error("El servidor ha retornat HTML en lloc de JSON. Revisa permisos/deploy.");
         }
+        
+        const data = JSON.parse(responseText);
+        
+        if (data.status === "ok" && data.html) {
+          // 🎉 ÈXIT: Injectem el teu HTML personalitzat al DOM
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('dynamic-content').innerHTML = data.html;
+          document.getElementById('dynamic-content').classList.remove('hidden');
+        } else {
+          throw new Error(data.message || "Resposta no vàlida del servidor");
+        }
+        
       } catch (err) {
-        console.error("Error fetch:", err);
-        // Si falla CORS o xarxa, sovint caiem aquí
-        mostrarError("Error de connexió. Revisa la consola (F12).");
+        console.error("❌ Error:", err);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
+        document.getElementById('error-detail').textContent = err.message;
       }
     }
 
-    function mostrarSuccess(nom) {
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('success').classList.remove('hidden');
-      if(nom) {
-        document.getElementById('msg-success').textContent = `Gràcies, ${nom}! Confirmació rebuda.`;
-      }
-    }
-
-    function mostrarError(detall) {
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('error').classList.remove('hidden');
-      document.getElementById('msg-error').textContent = detall;
-    }
-
-    // Iniciar el procés en carregar la pàgina
+    // Iniciar en carregar la pàgina
     confirmar();
   </script>
 </body>
