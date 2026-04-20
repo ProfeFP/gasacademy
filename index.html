@@ -1,463 +1,2111 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taller DIM — Crear en la era de la IA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GAS Academy – Aprende Google Apps Script</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+        rel="stylesheet" />
 
-    :root {
-      --red:   #e53935;
-      --yel:   #fdd835;
-      --blu:   #1e88e5;
-      --dark:  #07091a;
-      --navy:  #0d1230;
-      --panel: #111827;
-      --mid:   #1a2444;
-      --border:#2a3a6e;
-      --txt1:  #e8eaf6;
-      --txt2:  #9fa8da;
-      --txt3:  #5c6bc0;
-      --acc:   #7c9ff5;
-      --gas-gold: #f0b429;
-      --gas-dark: #0c1a0c;
-      --gas-green:#2ecc71;
-      --gas-mid:  #1a3a2a;
-    }
+    <style>
+        /* ─── DESIGN TOKENS ─────────────────────────────────────── */
+        :root {
+            --blue-50: #EFF6FF;
+            --blue-100: #DBEAFE;
+            --blue-200: #BFDBFE;
+            --blue-400: #60A5FA;
+            --blue-500: #3B82F6;
+            --blue-600: #2563EB;
+            --blue-700: #1D4ED8;
+            --blue-800: #1E40AF;
+            --blue-900: #1E3A5F;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .04);
+            --shadow-md: 0 4px 16px rgba(37, 99, 235, .10), 0 2px 6px rgba(0, 0, 0, .06);
+            --shadow-lg: 0 12px 40px rgba(37, 99, 235, .15), 0 4px 12px rgba(0, 0, 0, .08);
+            --transition: .2s ease;
+        }
 
-    html { scroll-behavior: smooth; }
+        /* ─── RESET ─────────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    body {
-      background: var(--dark);
-      color: var(--txt1);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
 
-    /* ── Fondo animado ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 10% 20%, rgba(30,136,229,.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(63,81,181,.10) 0%, transparent 60%);
-      pointer-events: none; z-index: 0;
-    }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--gray-700);
+            background: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    /* ── Wrapper ── */
-    .page {
-      position: relative; z-index: 1;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 40px 20px 60px;
-    }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    /* ══ BARRA DIM ══ */
-    .bar-dim {
-      display: flex; height: 7px; border-radius: 4px; overflow: hidden;
-      margin-bottom: 32px;
-      animation: slideIn .6s ease both;
-    }
-    .bar-dim span:nth-child(1){flex:1;background:var(--red);}
-    .bar-dim span:nth-child(2){flex:1;background:var(--yel);}
-    .bar-dim span:nth-child(3){flex:1;background:var(--blu);}
+        img {
+            max-width: 100%;
+        }
 
-    /* ══ LOGO + EVENTO ══ */
-    .header-top {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 28px;
-      animation: fadeUp .5s .1s ease both;
-    }
-    .dim-logo { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: 1px; line-height: 1; }
-    .dim-logo .d { color: var(--red); }
-    .dim-logo .i { color: var(--yel); background: var(--blu); font-style: italic; padding: 0 5px; border-radius: 5px; }
-    .dim-logo .m { color: #fff; }
-    .evento-badge {
-      background: var(--mid); border: 1px solid var(--border);
-      border-radius: 50px; padding: 6px 16px;
-      font-size: 12px; color: var(--acc); font-weight: 500; letter-spacing: .5px;
-    }
+        ul {
+            list-style: none;
+        }
 
-    /* ══ HERO ══ */
-    .hero {
-      background: linear-gradient(135deg, #0f1d6e 0%, #1a237e 40%, #1565c0 100%);
-      border: 1px solid var(--border);
-      border-radius: 20px; overflow: hidden;
-      margin-bottom: 16px;
-      animation: fadeUp .5s .2s ease both;
-      position: relative;
-    }
-    .hero::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .hero-inner { padding: 36px 36px 32px; position: relative; z-index: 1; }
-    .taller-tag {
-      display: inline-block;
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
-      border-radius: 50px; padding: 5px 14px; margin-bottom: 18px;
-      font-size: 12px; color: #c5cae9; letter-spacing: 1px; text-transform: uppercase;
-    }
-    .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(26px, 5vw, 38px);
-      font-weight: 800; line-height: 1.15;
-      color: #fff; margin-bottom: 10px;
-    }
-    .hero h1 em { color: var(--acc); font-style: normal; }
-    .hero-meta {
-      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px;
-    }
-    .hero-pill {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 50px; padding: 7px 16px;
-      font-size: 13px; color: #90caf9; display: flex; align-items: center; gap: 6px;
-    }
-    .hero-pill .ic { font-size: 14px; }
+        /* ─── SCROLLBAR ──────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    /* ══ PREGUNTA GANCHO ══ */
-    .hook {
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 16px; padding: 24px 28px;
-      margin-bottom: 16px; text-align: center;
-      animation: fadeUp .5s .3s ease both;
-    }
-    .hook h2 {
-      font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
-      color: var(--acc); margin-bottom: 10px;
-    }
-    .hook p {
-      color: var(--txt2); font-size: 14px; line-height: 1.75; max-width: 580px; margin: 0 auto;
-    }
+        ::-webkit-scrollbar-track {
+            background: var(--blue-50);
+        }
 
-    /* ══ GRID NIVELES ══ */
-    .niveles {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-      margin-bottom: 16px;
-      animation: fadeUp .5s .35s ease both;
-    }
-    @media(max-width:560px){ .niveles{ grid-template-columns: 1fr; } }
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue-400);
+            border-radius: 99px;
+        }
 
-    .nivel-card {
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 14px; padding: 20px 18px; position: relative; overflow: hidden;
-      transition: transform .2s, border-color .2s;
-    }
-    .nivel-card:hover { transform: translateY(-3px); border-color: var(--acc); }
-    .nivel-card::before {
-      content: attr(data-n);
-      position: absolute; top: -10px; right: 10px;
-      font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800;
-      color: rgba(124,159,245,.06); line-height: 1;
-    }
-    .nivel-num {
-      font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 1.5px; color: var(--acc);
-      margin-bottom: 8px;
-    }
-    .nivel-card h3 {
-      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
-      color: var(--txt1); margin-bottom: 6px;
-    }
-    .nivel-card p { font-size: 12px; color: var(--txt2); line-height: 1.6; }
-    .nivel-card .tag {
-      display: inline-block; margin-top: 10px;
-      background: var(--mid); border-radius: 50px;
-      padding: 3px 10px; font-size: 10px; color: var(--acc);
-    }
+        /* ─── NAVBAR ─────────────────────────────────────────────── */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--blue-100);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: box-shadow var(--transition);
+        }
 
-    /* ══ PONENTE ══ */
-    .ponente {
-      display: grid; grid-template-columns: 80px 1fr; gap: 20px; align-items: center;
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 16px; padding: 22px 24px;
-      margin-bottom: 16px;
-      animation: fadeUp .5s .4s ease both;
-    }
-    .avatar {
-      width: 70px; height: 70px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--blu), #3f51b5);
-      border: 3px solid var(--acc);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff;
-    }
-    .ponente-info .label {
-      font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
-      color: var(--txt3); margin-bottom: 4px;
-    }
-    .ponente-info h3 {
-      font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
-      color: var(--txt1); margin-bottom: 4px;
-    }
-    .ponente-info p { font-size: 13px; color: var(--txt2); }
-    .ponente-info a { color: var(--acc); text-decoration: none; }
+        .navbar.scrolled {
+            box-shadow: var(--shadow-md);
+        }
 
-    /* ══ INSCRIPCIÓN ══ */
-    .inscripcion {
-      background: var(--panel); border: 1px solid var(--border);
-      border-radius: 16px; padding: 24px 28px;
-      margin-bottom: 16px; text-align: center;
-      animation: fadeUp .5s .45s ease both;
-    }
-    .inscripcion p { font-size: 14px; color: var(--txt2); margin-bottom: 16px; }
-    .btn-inscribir {
-      display: inline-block;
-      background: linear-gradient(135deg, #e53935, #c62828);
-      color: #fff; text-decoration: none;
-      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
-      padding: 14px 40px; border-radius: 50px; letter-spacing: .5px;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .btn-inscribir:hover { transform: scale(1.04); box-shadow: 0 8px 30px rgba(229,57,53,.35); }
-    .inscripcion .url {
-      display: block; margin-top: 12px; font-size: 11px; color: var(--txt3);
-    }
-    .inscripcion .url a { color: var(--acc); text-decoration: none; }
+        .nav-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: var(--gray-900);
+            letter-spacing: -.5px;
+        }
 
-    /* ══ GAS ACADEMY ══ */
-    .gas-section {
-      position: relative; border-radius: 20px; overflow: hidden;
-      margin-bottom: 16px;
-      animation: fadeUp .5s .5s ease both;
-    }
-    .gas-bg {
-      background: linear-gradient(135deg, #021a08 0%, #0c2212 50%, #071a0f 100%);
-      border: 1px solid rgba(46,204,113,.25);
-      border-radius: 20px; overflow: hidden;
-    }
-    .gas-stripe {
-      height: 5px;
-      background: linear-gradient(90deg, #1a6b35, #2ecc71, #f0b429, #2ecc71, #1a6b35);
-    }
-    .gas-inner { padding: 30px 32px 28px; }
-    .gas-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.3);
-      border-radius: 50px; padding: 5px 14px; margin-bottom: 20px;
-      font-size: 11px; font-weight: 600; color: var(--gas-green);
-      text-transform: uppercase; letter-spacing: 1.2px;
-    }
-    .gas-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gas-green); animation: pulse 1.5s infinite; }
-    .gas-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      gap: 16px; margin-bottom: 18px;
-    }
-    .gas-logo-block h2 {
-      font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
-      color: #fff; line-height: 1;
-    }
-    .gas-logo-block h2 span { color: var(--gas-gold); }
-    .gas-logo-block .tagline {
-      font-size: 12px; color: rgba(46,204,113,.8); margin-top: 4px; letter-spacing: .5px;
-    }
-    .gas-badge {
-      flex-shrink: 0;
-      background: rgba(240,180,41,.12); border: 1px solid rgba(240,180,41,.35);
-      border-radius: 10px; padding: 10px 16px; text-align: center;
-    }
-    .gas-badge .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--gas-gold); display: block; margin-bottom: 4px; }
-    .gas-badge .val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
-    .gas-desc {
-      font-size: 14px; color: rgba(200,230,210,.75); line-height: 1.7;
-      border-left: 3px solid rgba(46,204,113,.4);
-      padding-left: 14px; margin-bottom: 22px;
-    }
-    .gas-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-    .gas-pill {
-      background: rgba(46,204,113,.08); border: 1px solid rgba(46,204,113,.2);
-      border-radius: 50px; padding: 5px 14px;
-      font-size: 12px; color: rgba(46,204,113,.9);
-    }
-    .gas-cta {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 14px;
-      background: rgba(0,0,0,.3); border: 1px solid rgba(46,204,113,.15);
-      border-radius: 14px; padding: 18px 22px;
-    }
-    .gas-cta-text .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--gas-green); margin-bottom: 3px; }
-    .gas-cta-text .url-txt {
-      font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #fff;
-    }
-    .gas-cta-text .url-txt span { color: var(--gas-gold); }
-    .btn-gas {
-      background: var(--gas-green); color: #021a08;
-      text-decoration: none; font-family: 'Syne', sans-serif;
-      font-size: 13px; font-weight: 700; padding: 11px 24px;
-      border-radius: 50px; letter-spacing: .3px; white-space: nowrap;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .btn-gas:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(46,204,113,.35); }
+        .nav-brand span {
+            color: var(--blue-600);
+        }
 
-    /* ══ FOOTER ══ */
-    .footer {
-      border-top: 1px solid var(--border);
-      padding-top: 24px; margin-top: 8px;
-      animation: fadeUp .5s .55s ease both;
-    }
-    .bar-dim-sm { display: flex; height: 3px; border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
-    .bar-dim-sm span:nth-child(1){flex:1;background:var(--red);}
-    .bar-dim-sm span:nth-child(2){flex:1;background:var(--yel);}
-    .bar-dim-sm span:nth-child(3){flex:1;background:var(--blu);}
-    .footer-row {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
-    }
-    .footer-row .col { font-size: 11px; color: var(--txt3); line-height: 1.7; }
-    .footer-row .col a { color: var(--acc); text-decoration: none; }
-    .footer-row .col strong { color: var(--txt2); display: block; margin-bottom: 2px; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
 
-    /* ── Animaciones ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideIn {
-      from { transform: scaleX(0); transform-origin: left; }
-      to   { transform: scaleX(1); }
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: .5; transform: scale(1.4); }
-    }
-  </style>
+        .nav-links a {
+            font-size: .92rem;
+            font-weight: 500;
+            color: var(--gray-500);
+            transition: color var(--transition);
+            position: relative;
+            padding-bottom: 2px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--blue-600);
+            border-radius: 99px;
+            transition: width var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--blue-600);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .btn-chat {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            background: var(--blue-600);
+            color: var(--white);
+            padding: .45rem 1rem;
+            border-radius: var(--radius-xl);
+            font-size: .85rem;
+            font-weight: 600;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .btn-chat:hover {
+            background: var(--blue-700);
+            transform: translateY(-1px);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--gray-700);
+            border-radius: 99px;
+            transition: var(--transition);
+        }
+
+        /* ─── HERO ───────────────────────────────────────────────── */
+        .hero {
+            background: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-800) 60%, var(--blue-900) 100%);
+            padding: 5rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255, 255, 255, .15);
+            color: var(--blue-100);
+            padding: .3rem .85rem;
+            border-radius: var(--radius-xl);
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: .5px;
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, .2);
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.15;
+            letter-spacing: -.5px;
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 em {
+            color: var(--blue-200);
+            font-style: normal;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, .82);
+            max-width: 580px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: .75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--blue-700);
+            padding: .7rem 1.6rem;
+            border-radius: var(--radius-xl);
+            font-weight: 700;
+            font-size: .95rem;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+        }
+
+        .btn-outline-white {
+            border: 2px solid rgba(255, 255, 255, .5);
+            color: var(--white);
+            padding: .68rem 1.4rem;
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            font-size: .95rem;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .btn-outline-white:hover {
+            background: rgba(255, 255, 255, .12);
+            border-color: var(--white);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, .15);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .stat-lbl {
+            font-size: .8rem;
+            color: rgba(255, 255, 255, .65);
+            margin-top: .1rem;
+        }
+
+        /* ─── SECTIONS ───────────────────────────────────────────── */
+        section {
+            padding: 4.5rem 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            color: var(--gray-900);
+            letter-spacing: -.3px;
+        }
+
+        .section-header p {
+            color: var(--gray-500);
+            margin-top: .4rem;
+            font-size: .95rem;
+        }
+
+        .section-divider {
+            width: 48px;
+            height: 4px;
+            background: var(--blue-600);
+            border-radius: 99px;
+            margin-bottom: .75rem;
+        }
+
+        .tag-filter {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .tag {
+            padding: .35rem .85rem;
+            border-radius: var(--radius-xl);
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--blue-200);
+            color: var(--blue-600);
+            background: var(--blue-50);
+            transition: var(--transition);
+        }
+
+        .tag.active,
+        .tag:hover {
+            background: var(--blue-600);
+            color: var(--white);
+            border-color: var(--blue-600);
+        }
+
+        /* ─── COURSE CARDS ───────────────────────────────────────── */
+        #cursos {
+            background: var(--gray-50);
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--blue-100);
+            padding: 0;
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-banner {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-banner::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 50%;
+        }
+
+        .banner-gas {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+        }
+
+        .banner-ia {
+            background: linear-gradient(135deg, #7C3AED, #4F46E5);
+        }
+
+        .banner-api {
+            background: linear-gradient(135deg, #0891B2, #0E7490);
+        }
+
+        .banner-python {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .banner-gas2 {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+        }
+
+        .banner-gas3 {
+            background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+        }
+
+        .card-level {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .6px;
+            padding: .25rem .6rem;
+            border-radius: var(--radius-xl);
+            background: rgba(255, 255, 255, .2);
+            color: var(--white);
+            align-self: flex-start;
+        }
+
+        .card-body {
+            padding: 1.25rem 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-category {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .5px;
+            color: var(--blue-600);
+            text-transform: uppercase;
+            margin-bottom: .4rem;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: .5rem;
+            line-height: 1.3;
+        }
+
+        .card-desc {
+            font-size: .87rem;
+            color: var(--gray-500);
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .card-meta span {
+            font-size: .8rem;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            gap: .3rem;
+        }
+
+        .badge-status {
+            font-size: .72rem;
+            font-weight: 700;
+            padding: .25rem .65rem;
+            border-radius: var(--radius-xl);
+        }
+
+        .badge-active {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .badge-soon {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge-new {
+            background: #EDE9FE;
+            color: #5B21B6;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            margin-top: .75rem;
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--blue-600);
+            transition: gap var(--transition);
+        }
+
+        .card-link:hover {
+            gap: .55rem;
+        }
+
+        /* ─── AGENDA ─────────────────────────────────────────────── */
+        #agenda {
+            background: var(--white);
+        }
+
+        .agenda-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .mini-calendar {
+            background: var(--blue-600);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            color: var(--white);
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cal-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .cal-nav {
+            background: rgba(255, 255, 255, .15);
+            border: none;
+            color: var(--white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition);
+        }
+
+        .cal-nav:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .cal-day-name {
+            font-size: .68rem;
+            font-weight: 600;
+            opacity: .7;
+            padding: .25rem 0;
+        }
+
+        .cal-day {
+            font-size: .82rem;
+            padding: .4rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition);
+        }
+
+        .cal-day:hover {
+            background: rgba(255, 255, 255, .15);
+        }
+
+        .cal-day.today {
+            background: var(--white);
+            color: var(--blue-700);
+            font-weight: 700;
+        }
+
+        .cal-day.has-event {
+            position: relative;
+        }
+
+        .cal-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--blue-200);
+            border-radius: 50%;
+        }
+
+        .cal-day.has-event.today::after {
+            background: var(--blue-600);
+        }
+
+        .cal-day.other-month {
+            opacity: .35;
+        }
+
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .event-item {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1rem 1.25rem;
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--blue-600);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .event-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .event-item.purple {
+            border-left-color: #7C3AED;
+        }
+
+        .event-item.teal {
+            border-left-color: #0891B2;
+        }
+
+        .event-item.green {
+            border-left-color: #059669;
+        }
+
+        .event-date {
+            text-align: center;
+            min-width: 44px;
+            background: var(--blue-100);
+            border-radius: var(--radius-sm);
+            padding: .4rem .3rem;
+        }
+
+        .event-date .day {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--blue-700);
+            line-height: 1;
+        }
+
+        .event-date .mon {
+            font-size: .68rem;
+            font-weight: 600;
+            color: var(--blue-500);
+            text-transform: uppercase;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: .95rem;
+        }
+
+        .event-meta {
+            font-size: .8rem;
+            color: var(--gray-400);
+            margin-top: .2rem;
+        }
+
+        .event-badge {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .2rem .55rem;
+            border-radius: var(--radius-xl);
+            background: var(--blue-100);
+            color: var(--blue-700);
+            align-self: center;
+            white-space: nowrap;
+        }
+
+        /* ─── BLOG ───────────────────────────────────────────────── */
+        #blog {
+            background: var(--gray-50);
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .blog-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .blog-img {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-img span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .blog-img::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+        }
+
+        .bi-1::before {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        }
+
+        .bi-2::before {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+        }
+
+        .bi-3::before {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+        }
+
+        .blog-content {
+            padding: 1.25rem;
+        }
+
+        .blog-tag {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--blue-600);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: .5rem;
+        }
+
+        .blog-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: .5rem;
+            line-height: 1.35;
+        }
+
+        .blog-excerpt {
+            font-size: .85rem;
+            color: var(--gray-500);
+        }
+
+        .blog-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: .75rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .blog-date {
+            font-size: .78rem;
+            color: var(--gray-400);
+        }
+
+        .blog-readmore {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--blue-600);
+            display: flex;
+            align-items: center;
+            gap: .2rem;
+            transition: gap var(--transition);
+        }
+
+        .blog-readmore:hover {
+            gap: .4rem;
+        }
+
+        /* ─── CONTACT ────────────────────────────────────────────── */
+        #contacto {
+            background: var(--white);
+        }
+
+        .contact-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .contact-info h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: .75rem;
+        }
+
+        .contact-info p {
+            color: var(--gray-500);
+            font-size: .95rem;
+            line-height: 1.7;
+        }
+
+        .contact-channels {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            margin-top: 1.5rem;
+        }
+
+        .channel-btn {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            padding: .85rem 1.2rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: .9rem;
+            border: 2px solid transparent;
+            transition: transform var(--transition), box-shadow var(--transition);
+            cursor: pointer;
+        }
+
+        .channel-btn:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .channel-btn.whatsapp {
+            background: #DCFCE7;
+            color: #15803D;
+            border-color: #BBF7D0;
+        }
+
+        .channel-btn.telegram {
+            background: #EFF6FF;
+            color: var(--blue-700);
+            border-color: var(--blue-200);
+        }
+
+        .channel-btn .ch-icon {
+            font-size: 1.4rem;
+        }
+
+        .ch-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ch-label {
+            font-size: .72rem;
+            opacity: .7;
+            font-weight: 500;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .form-group label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: .65rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--gray-200);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--gray-700);
+            background: var(--gray-50);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--blue-400);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+            background: var(--white);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .btn-submit {
+            background: var(--blue-600);
+            color: var(--white);
+            padding: .75rem 2rem;
+            border-radius: var(--radius-xl);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: .95rem;
+            border: none;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+
+        .btn-submit:hover {
+            background: var(--blue-700);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ─── FOOTER ─────────────────────────────────────────────── */
+        footer {
+            background: var(--blue-900);
+            color: rgba(255, 255, 255, .7);
+            padding: 3rem 2rem 1.5rem;
+        }
+
+        .footer-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .footer-brand .nav-brand {
+            color: var(--white);
+            font-size: 1.4rem;
+            display: block;
+            margin-bottom: .5rem;
+        }
+
+        .footer-brand p {
+            font-size: .87rem;
+            line-height: 1.7;
+        }
+
+        footer h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: .5px;
+            margin-bottom: .85rem;
+            text-transform: uppercase;
+        }
+
+        footer ul li {
+            margin-bottom: .5rem;
+        }
+
+        footer ul li a {
+            font-size: .85rem;
+            transition: color var(--transition);
+        }
+
+        footer ul li a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 1.25rem auto 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .8rem;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: .6rem;
+        }
+
+        .social-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            transition: background var(--transition);
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            background: var(--blue-600);
+        }
+
+        /* ─── FLOATING: YouTube ──────────────────────────────────── */
+        .yt-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 200;
+            width: 320px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, .2);
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+            transform-origin: bottom right;
+        }
+
+        .yt-widget.hidden {
+            transform: scale(.1) translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .yt-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .65rem 1rem;
+            background: #FF0000;
+            color: var(--white);
+        }
+
+        .yt-header-left {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 700;
+            font-size: .9rem;
+        }
+
+        .yt-controls {
+            display: flex;
+            gap: .4rem;
+        }
+
+        .yt-btn {
+            background: rgba(255, 255, 255, .2);
+            border: none;
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition);
+        }
+
+        .yt-btn:hover {
+            background: rgba(255, 255, 255, .35);
+        }
+
+        .yt-embed {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+            display: block;
+        }
+
+        .yt-playlist {
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .yt-playlist::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .yt-playlist::-webkit-scrollbar-thumb {
+            background: var(--gray-200);
+        }
+
+        .yt-item {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            padding: .6rem 1rem;
+            cursor: pointer;
+            transition: background var(--transition);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .yt-item:hover {
+            background: var(--blue-50);
+        }
+
+        .yt-item.active {
+            background: var(--blue-50);
+        }
+
+        .yt-thumb {
+            width: 52px;
+            height: 36px;
+            border-radius: 4px;
+            background: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .yt-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .yt-item-title {
+            font-size: .78rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .yt-item-dur {
+            font-size: .7rem;
+            color: var(--gray-400);
+            margin-top: .15rem;
+        }
+
+        /* ─── FLOATING: Toggle YouTube btn ──────────────────────── */
+        .yt-toggle {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            z-index: 199;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #FF0000;
+            color: var(--white);
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255, 0, 0, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .yt-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, .5);
+        }
+
+        .yt-toggle.open {
+            display: none;
+        }
+
+        /* ─── FLOATING: Chat (WhatsApp) ──────────────────────────── */
+        .chat-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .chat-float-label {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: .4rem .85rem;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            box-shadow: var(--shadow-md);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: opacity .3s, transform .3s;
+            pointer-events: none;
+        }
+
+        .chat-float:hover .chat-float-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .chat-fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #25D366;
+            color: var(--white);
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .chat-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(37, 211, 102, .55);
+        }
+
+        /* ─── SCROLL TO TOP ──────────────────────────────────────── */
+        .scroll-top {
+            position: fixed;
+            bottom: 84px;
+            left: 20px;
+            z-index: 200;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--blue-600);
+            color: var(--white);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .3s, transform .3s, background var(--transition);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-top:hover {
+            background: var(--blue-700);
+        }
+
+        /* ─── TOAST ──────────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: var(--gray-900);
+            color: var(--white);
+            padding: .6rem 1.25rem;
+            border-radius: var(--radius-xl);
+            font-size: .85rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity .3s, transform .3s;
+            pointer-events: none;
+            z-index: 300;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ─── MOBILE NAV ─────────────────────────────────────────── */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav.open {
+            display: flex;
+        }
+
+        .mobile-nav a {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            padding: .25rem 0;
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .agenda-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .yt-widget {
+                width: calc(100vw - 40px);
+                right: 20px;
+            }
+
+            .hero-stats {
+                gap: 1.5rem;
+            }
+        }
+
+        /* ─── ANIMATIONS ─────────────────────────────────────────── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp .6s ease forwards;
+            opacity: 0;
+        }
+
+        .fade-up:nth-child(1) {
+            animation-delay: .05s;
+        }
+
+        .fade-up:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .fade-up:nth-child(3) {
+            animation-delay: .25s;
+        }
+
+        .fade-up:nth-child(4) {
+            animation-delay: .35s;
+        }
+
+        .fade-up:nth-child(5) {
+            animation-delay: .45s;
+        }
+
+        .fade-up:nth-child(6) {
+            animation-delay: .55s;
+        }
+    </style>
 </head>
+
 <body>
-<div class="page">
 
-  <!-- Barra DIM tricolor -->
-  <div class="bar-dim"><span></span><span></span><span></span></div>
-
-  <!-- Logo + badge -->
-  <div class="header-top">
-    <div class="dim-logo">
-      <span class="d">D</span><span class="i">i</span><span class="m">M</span>
-    </div>
-    <div class="evento-badge">171 Jornada &nbsp;·&nbsp; Creativia26</div>
-  </div>
-
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="taller-tag">&#127919;&nbsp; Taller ON-LINE</div>
-      <h1>Crear en la era de la IA:<br><em>más allá del código tradicional</em></h1>
-      <div class="hero-meta">
-        <div class="hero-pill"><span class="ic">&#128197;</span> Lunes, 20 de abril de 2026</div>
-        <div class="hero-pill"><span class="ic">&#9201;</span> 17:00&nbsp;&ndash;&nbsp;18:00 h &nbsp;[GTM+2]</div>
-        <div class="hero-pill"><span class="ic">&#128187;</span> Sesión 100% en línea</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Pregunta gancho -->
-  <div class="hook">
-    <h2>&#8203;¿La IA solo es para programadores?</h2>
-    <p>
-      En esta sesión descubrirás que <strong style="color:var(--txt1)">cualquier persona puede crear productos digitales reales</strong>
-      con la ayuda de la IA. Un recorrido práctico y sorprendente que te mostrará que la barrera
-      entre «saber programar» y «no saber programar» está desapareciendo.
-    </p>
-  </div>
-
-  <!-- Niveles de creación -->
-  <div class="niveles">
-    <div class="nivel-card" data-n="1">
-      <div class="nivel-num">Nivel 1</div>
-      <h3>Sin código</h3>
-      <p>Crea un <em>skill</em> funcional sin escribir ni una sola línea de código.</p>
-      <span class="tag">No-code</span>
-    </div>
-    <div class="nivel-card" data-n="2">
-      <div class="nivel-num">Nivel 2</div>
-      <h3>Low-code</h3>
-      <p>Automatizaciones y flujos de trabajo con mínima intervención técnica.</p>
-      <span class="tag">Automatización</span>
-    </div>
-    <div class="nivel-card" data-n="3">
-      <div class="nivel-num">Nivel 3</div>
-      <h3>Código real</h3>
-      <p>Proyectos con Python, HTML o AppScript asistidos por IA.</p>
-      <span class="tag">Python · AppScript</span>
-    </div>
-  </div>
-
-  <!-- Ponente -->
-  <div class="ponente">
-    <div class="avatar">FM</div>
-    <div class="ponente-info">
-      <div class="label">Ponente</div>
-      <h3>Ferran Mas</h3>
-      <p>Asesor en Nuevas Tecnologías &nbsp;&middot;&nbsp;
-        <a href="mailto:profefpconia@gmail.com">profefpconia@gmail.com</a>
-      </p>
-    </div>
-  </div>
-
-  <!-- Inscripción -->
-  <div class="inscripcion">
-    <p>Acceso libre y gratuito &nbsp;&middot;&nbsp; Plazas limitadas</p>
-    <a class="btn-inscribir" href="https://ja.cat/inscri_taller_ia">
-      &#9654;&nbsp;&nbsp;Inscríbete ahora
-    </a>
-    <span class="url">
-      Más información en
-      <a href="https://dimglobal.ning.com/page/tallerescreativia26">
-        dimglobal.ning.com/page/tallerescreativia26
-      </a>
-    </span>
-  </div>
-
-  <!-- ══════════════════════════════════════
-       GAS ACADEMY — Sección patrocinadora
-       ══════════════════════════════════════ -->
-  <div class="gas-section">
-    <div class="gas-bg">
-      <div class="gas-stripe"></div>
-      <div class="gas-inner">
-
-        <div class="gas-eyebrow">Portal colaborador</div>
-
-        <div class="gas-header">
-          <div class="gas-logo-block">
-            <h2>GAS<span>academy</span></h2>
-            <div class="tagline">Google Apps Script · Formación práctica</div>
-          </div>
-          <div class="gas-badge">
-            <span class="label">Recurso oficial</span>
-            <div class="val">gasacademy<br><span style="font-size:11px;font-weight:400;color:var(--gas-gold);">.academy</span></div>
-          </div>
+    <!-- ─── NAVBAR ───────────────────────────────────────────────── -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="nav-brand"><span>GAS</span> Academy</a>
+        <ul class="nav-links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#cursos">Cursos</a></li>
+            <li><a href="#agenda">Agenda</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+        </ul>
+        <div class="nav-right">
+            <a href="#contacto" class="btn-chat">
+                💬 Contactar
+            </a>
+            <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
         </div>
+    </nav>
 
-        
-
-             </div>
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#inicio" onclick="closeMenu()">🏠 Inicio</a>
+        <a href="#cursos" onclick="closeMenu()">📚 Cursos</a>
+        <a href="#agenda" onclick="closeMenu()">📅 Agenda</a>
+        <a href="#blog" onclick="closeMenu()">📰 Blog</a>
+        <a href="#contacto" onclick="closeMenu()">✉️ Contacto</a>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    <div class="bar-dim-sm"><span></span><span></span><span></span></div>
-    <div class="footer-row">
-      <div class="col">
-        <strong>171 Jornada DIM &nbsp;·&nbsp; Creativia26</strong>
-        <a href="https://dimglobal.ning.com">dimglobal.ning.com</a>
-      </div>
-      <div class="col" style="text-align:center;">
-        <strong>Contacto</strong>
-        <a href="mailto:profefpconia@gmail.com">profefpconia@gmail.com</a>
-      </div>
-      <div class="col" style="text-align:right;">
-        <strong>Portal colaborador</strong>
-        <a href="https://gasacademy.academy">gasacademy.academy</a>
-      </div>
+    <!-- ─── HERO ─────────────────────────────────────────────────── -->
+    <section id="inicio" class="hero">
+        <div class="hero-badge">🚀 Plataforma de formación en Google Workspace</div>
+        <h1>Aprende a automatizar con<br><em>Google Apps Script</em> e IA</h1>
+        <p>Desde los fundamentos hasta integraciones avanzadas con APIs. Cursos prácticos, proyectos reales y comunidad
+            activa.</p>
+        <div class="hero-ctas">
+            <a href="#cursos" class="btn-primary">Ver cursos →</a>
+            <a href="#contacto" class="btn-outline-white">Hablar con nosotros</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-num">6</div>
+                <div class="stat-lbl">Cursos disponibles</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">120+</div>
+                <div class="stat-lbl">Lecciones</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">500+</div>
+                <div class="stat-lbl">Alumnos formados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">100%</div>
+                <div class="stat-lbl">Práctico</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── CURSOS ───────────────────────────────────────────────── -->
+    <section id="cursos">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-divider"></div>
+                <h2>Cursos disponibles</h2>
+                <p>Aprende a tu ritmo con contenido actualizado y orientado a proyectos reales</p>
+            </div>
+            <div class="tag-filter">
+                <span class="tag active" onclick="filterCourses('all', this)">Todos</span>
+                <span class="tag" onclick="filterCourses('gas', this)">Apps Script</span>
+                <span class="tag" onclick="filterCourses('ia', this)">IA</span>
+                <span class="tag" onclick="filterCourses('api', this)">APIs</span>
+                <span class="tag" onclick="filterCourses('python', this)">Python</span>
+            </div>
+            <div class="courses-grid">
+
+                <!-- GAS N1 -->
+                <div class="course-card fade-up" data-cat="gas">
+                    <div class="card-banner banner-gas">
+                        <div class="card-icon">⚙️</div>
+                        <span class="card-level">NIVEL 1</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Google Apps Script</div>
+                        <div class="card-title">GAS Nivel 1 – Fundamentos</div>
+                        <div class="card-desc">Variables, funciones, bucles y automatización básica con Sheets, Docs y
+                            Gmail desde cero.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 12 módulos</span>
+                                <span>⏱ 8h</span>
+                            </div>
+                            <span class="badge-status badge-soon">Próximamente</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+                <!-- GAS N2 -->
+                <div class="course-card fade-up" data-cat="gas">
+                    <div class="card-banner banner-gas2">
+                        <div class="card-icon">🔧</div>
+                        <span class="card-level">NIVEL 2</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Google Apps Script</div>
+                        <div class="card-title">GAS Nivel 2 – Intermedio</div>
+                        <div class="card-desc">Clases y objetos, triggers avanzados, SpreadsheetApp a fondo y
+                            formularios dinámicos.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 10 módulos</span>
+                                <span>⏱ 10h</span>
+                            </div>
+                            <span class="badge-status badge-soon">Próximamente</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+                <!-- GAS N3 -->
+                <div class="course-card fade-up" data-cat="gas">
+                    <div class="card-banner banner-gas3">
+                        <div class="card-icon">🏆</div>
+                        <span class="card-level">NIVEL 3</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Google Apps Script</div>
+                        <div class="card-title">GAS Nivel 3 – Avanzado</div>
+                        <div class="card-desc">Add-ons, despliegue como servicio web, optimización de rendimiento y
+                            proyectos empresariales.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 8 módulos</span>
+                                <span>⏱ 12h</span>
+                            </div>
+                            <span class="badge-status badge-soon">Próximamente</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+                <!-- IA -->
+                <div class="course-card fade-up" data-cat="ia">
+                    <div class="card-banner banner-ia">
+                        <div class="card-icon">🤖</div>
+                        <span class="card-level">NUEVO</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Automatización con IA</div>
+                        <div class="card-title">GAS & Inteligencia Artificial</div>
+                        <div class="card-desc">Conecta Apps Script con Gemini, ChatGPT y Claude. Genera contenido,
+                            clasifica datos y automatiza con IA.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 9 módulos</span>
+                                <span>⏱ 9h</span>
+                            </div>
+                            <span class="badge-status badge-new">Nuevo</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+                <!-- APIs -->
+                <div class="course-card fade-up" data-cat="api">
+                    <div class="card-banner banner-api">
+                        <div class="card-icon">🔌</div>
+                        <span class="card-level">AVANZADO</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Integración de APIs</div>
+                        <div class="card-title">APIs REST con Apps Script</div>
+                        <div class="card-desc">UrlFetchApp, autenticación OAuth, webhooks, Notion API, Slack API y
+                            construcción de dashboards en tiempo real.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 11 módulos</span>
+                                <span>⏱ 11h</span>
+                            </div>
+                            <span class="badge-status badge-soon">Próximamente</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+                <!-- Python -->
+                <div class="course-card fade-up" data-cat="python">
+                    <div class="card-banner banner-python">
+                        <div class="card-icon">🐍</div>
+                        <span class="card-level">INTRO</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-category">Python con Google Colab</div>
+                        <div class="card-title">Python para Automatización</div>
+                        <div class="card-desc">Pandas, automatización con gspread, análisis de datos y conexión con
+                            Google Sheets desde Google Colab.</div>
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <span>📚 10 módulos</span>
+                                <span>⏱ 10h</span>
+                            </div>
+                            <span class="badge-status badge-soon">Próximamente</span>
+                        </div>
+                        <a href="#contacto" class="card-link">Notificarme →</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── AGENDA ────────────────────────────────────────────────── -->
+    <section id="agenda">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-divider"></div>
+                <h2>Agenda de eventos</h2>
+                <p>Webinars, sesiones en directo y talleres formativos</p>
+            </div>
+            <div class="agenda-layout">
+                <!-- Mini calendario -->
+                <div class="mini-calendar">
+                    <div class="cal-header">
+                        <button class="cal-nav" onclick="prevMonth()">‹</button>
+                        <h3 id="calTitle">Abril 2026</h3>
+                        <button class="cal-nav" onclick="nextMonth()">›</button>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+
+                <!-- Eventos -->
+                <div class="events-list">
+                    <div class="event-item">
+                        <div class="event-date">
+                            <div class="day">23</div>
+                            <div class="mon">ABR</div>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">Webinar gratuito: Introducción a GAS</div>
+                            <div class="event-meta">🕖 18:00 – 19:30 · Online (Google Meet)</div>
+                        </div>
+                        <span class="event-badge">Gratis</span>
+                    </div>
+                    <div class="event-item purple">
+                        <div class="event-date">
+                            <div class="day">30</div>
+                            <div class="mon">ABR</div>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">Taller práctico: Automatiza con IA</div>
+                            <div class="event-meta">🕗 17:00 – 19:00 · Online</div>
+                        </div>
+                        <span class="event-badge" style="background:#EDE9FE;color:#5B21B6">IA</span>
+                    </div>
+                    <div class="event-item teal">
+                        <div class="event-date">
+                            <div class="day">07</div>
+                            <div class="mon">MAY</div>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">Live coding: APIs con Apps Script</div>
+                            <div class="event-meta">🕖 18:30 – 20:00 · Online</div>
+                        </div>
+                        <span class="event-badge" style="background:#E0F2FE;color:#0369A1">API</span>
+                    </div>
+                    <div class="event-item green">
+                        <div class="event-date">
+                            <div class="day">15</div>
+                            <div class="mon">MAY</div>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">Sesión Q&A: Resolución de dudas GAS N1</div>
+                            <div class="event-meta">🕕 17:00 – 18:00 · Solo alumnos</div>
+                        </div>
+                        <span class="event-badge" style="background:#D1FAE5;color:#065F46">Alumnos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── BLOG ──────────────────────────────────────────────────── -->
+    <section id="blog">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-divider"></div>
+                <h2>Blog & Novedades</h2>
+                <p>Tutoriales, casos de uso y las últimas actualizaciones de la plataforma</p>
+            </div>
+            <div class="blog-grid">
+                <div class="blog-card fade-up">
+                    <div class="blog-img bi-1"><span>⚙️</span></div>
+                    <div class="blog-content">
+                        <div class="blog-tag">Tutorial</div>
+                        <div class="blog-title">Cómo enviar correos personalizados masivos con Apps Script en 10 minutos
+                        </div>
+                        <div class="blog-excerpt">Aprende a leer datos de una hoja de cálculo y enviar emails
+                            personalizados a una lista de contactos automáticamente.</div>
+                        <div class="blog-footer">
+                            <span class="blog-date">📅 15 Apr 2026</span>
+                            <a href="#" class="blog-readmore">Leer más →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="blog-card fade-up">
+                    <div class="blog-img bi-2"><span>🤖</span></div>
+                    <div class="blog-content">
+                        <div class="blog-tag">IA & Automatización</div>
+                        <div class="blog-title">Integra Gemini en tu hoja de cálculo sin salir de Google Sheets</div>
+                        <div class="blog-excerpt">Tutorial paso a paso para conectar la API de Gemini con Apps Script y
+                            clasificar texto directamente desde tus celdas.</div>
+                        <div class="blog-footer">
+                            <span class="blog-date">📅 10 Apr 2026</span>
+                            <a href="#" class="blog-readmore">Leer más →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="blog-card fade-up">
+                    <div class="blog-img bi-3"><span>🐍</span></div>
+                    <div class="blog-content">
+                        <div class="blog-tag">Python</div>
+                        <div class="blog-title">Python + Google Colab + Sheets: el trío perfecto para analizar datos
+                        </div>
+                        <div class="blog-excerpt">Cómo conectar Colab a tus hojas de Google, leer datos con pandas y
+                            visualizarlos en segundos, sin coste.</div>
+                        <div class="blog-footer">
+                            <span class="blog-date">📅 5 Apr 2026</span>
+                            <a href="#" class="blog-readmore">Leer más →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── CONTACTO ───────────────────────────────────────────────── -->
+    <section id="contacto">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-divider"></div>
+                <h2>Contacto</h2>
+                <p>¿Tienes dudas? Escríbenos o únete a nuestra comunidad</p>
+            </div>
+            <div class="contact-layout">
+                <div class="contact-info">
+                    <h3>¿Hablamos?</h3>
+                    <p>Estamos disponibles para resolver tus dudas sobre los cursos, acceso a contenidos o formación
+                        personalizada para empresas. Escríbenos por el canal que prefieras.</p>
+                    <div class="contact-channels">
+
+                        <a href="https://t.me/+ZybDM5-IHTphYTNk" target="_blank" class="channel-btn telegram">
+                            <span class="ch-icon">✈️</span>
+                            <div class="ch-info">
+                                <span class="ch-label">Únete a nuestra comunidad</span>
+                                <strong>Canal de Telegram</strong>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <form class="contact-form" onsubmit="submitForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fname">Nombre</label>
+                            <input type="text" id="fname" placeholder="Tu nombre" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="femail">Email</label>
+                            <input type="email" id="femail" placeholder="tu@email.com" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fsubject">¿Sobre qué curso?</label>
+                        <select id="fsubject">
+                            <option value="">Selecciona un curso…</option>
+                            <option>GAS Nivel 1 – Fundamentos</option>
+                            <option>GAS Nivel 2 – Intermedio</option>
+                            <option>GAS Nivel 3 – Avanzado</option>
+                            <option>GAS & Inteligencia Artificial</option>
+                            <option>APIs REST con Apps Script</option>
+                            <option>Python con Google Colab</option>
+                            <option>Otro / Formación empresarial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fmsg">Mensaje</label>
+                        <textarea id="fmsg" placeholder="Cuéntanos en qué podemos ayudarte…" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Enviar mensaje ✉️</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <span class="nav-brand"><span>GAS</span> Academy</span>
+                <p>Plataforma de formación especializada en Google Apps Script, automatización con IA e integración de
+                    APIs para el entorno Google Workspace.</p>
+            </div>
+            <div>
+                <h4>Cursos</h4>
+                <ul>
+                    <li><a href="#cursos">GAS Nivel 1</a></li>
+                    <li><a href="#cursos">GAS Nivel 2</a></li>
+                    <li><a href="#cursos">GAS & IA</a></li>
+                    <li><a href="#cursos">Python + Colab</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Plataforma</h4>
+                <ul>
+                    <li><a href="#agenda">Agenda</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Comunidad</h4>
+                <ul>
+                    <li><a href="#">Telegram</a></li>
+                    <li><a href="#">WhatsApp</a></li>
+                    <li><a href="#">YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 GAS Academy. Todos los derechos reservados.</span>
+            <div class="footer-socials">
+                <div class="social-icon">▶</div>
+                <div class="social-icon">✈</div>
+                <div class="social-icon">💬</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ─── FLOATING: YouTube Player ─────────────────────────────── -->
+    <div class="yt-widget hidden" id="ytWidget">
+        <div class="yt-header">
+            <div class="yt-header-left">▶ GAS Academy – YouTube</div>
+            <div class="yt-controls">
+                <button class="yt-btn" onclick="toggleYT()" title="Minimizar">✕</button>
+            </div>
+        </div>
+        <iframe id="ytFrame" class="yt-embed"
+            src="https://www.youtube.com/playlist?list=PLcDyXrd0vdynQcv75Ii0m119CHTE2WL7w&autoplay=0"
+            allow="autoplay; encrypted-media" allowfullscreen>
+        </iframe>
+        <div class="yt-playlist">
+            <div class="yt-item active" onclick="loadVideo('hkCxHD1qZ3I', this)">
+                <div class="yt-thumb">🎬</div>
+                <div>
+                    <div class="yt-item-title">Introducción a Google Apps Script</div>
+                    <div class="yt-item-dur">12:34</div>
+                </div>
+            </div>
+            <div class="yt-item" onclick="loadVideo('9QL-3FkGDms', this)">
+                <div class="yt-thumb">🎬</div>
+                <div>
+                    <div class="yt-item-title">Variables y tipos de datos en GAS</div>
+                    <div class="yt-item-dur">18:20</div>
+                </div>
+            </div>
+            <div class="yt-item" onclick="loadVideo('ZaZ2Lm5yPBk', this)">
+                <div class="yt-thumb">🎬</div>
+                <div>
+                    <div class="yt-item-title">Automatiza emails con GmailApp</div>
+                    <div class="yt-item-dur">22:05</div>
+                </div>
+            </div>
+            <div class="yt-item" onclick="loadVideo('xyzABCDEFGH', this)">
+                <div class="yt-thumb">🎬</div>
+                <div>
+                    <div class="yt-item-title">Triggers: automatiza en segundo plano</div>
+                    <div class="yt-item-dur">15:48</div>
+                </div>
+            </div>
+            <div class="yt-item" onclick="loadVideo('abcdef123456', this)">
+                <div class="yt-thumb">🎬</div>
+                <div>
+                    <div class="yt-item-title">Conecta GAS con APIs externas</div>
+                    <div class="yt-item-dur">27:11</div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-</div>
+    <button class="yt-toggle" id="ytToggle" onclick="toggleYT()" title="Ver playlist de YouTube">▶</button>
+
+    <!-- ─── FLOATING: WhatsApp ────────────────────────────────────── -->
+    <div class="chat-float">
+        <span class="chat-float-label">¿Tienes dudas? ¡Escríbenos!</span>
+        <a href="https://wa.me/34XXXXXXXXX?text=Hola!%20Tengo%20una%20pregunta%20sobre%20GAS%20Academy" target="_blank">
+            <button class="chat-fab">💬</button>
+        </a>
+    </div>
+
+    <!-- ─── SCROLL TO TOP ─────────────────────────────────────────── -->
+    <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        title="Volver arriba">↑</button>
+
+    <!-- ─── TOAST ─────────────────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ─── SCRIPTS ───────────────────────────────────────────────── -->
+    <script>
+        /* ── Navbar scroll ── */
+        const navbar = document.getElementById('navbar');
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 20);
+            scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
+        });
+
+        /* ── Mobile nav ── */
+        function toggleMenu() {
+            document.getElementById('mobileNav').classList.toggle('open');
+        }
+        function closeMenu() {
+            document.getElementById('mobileNav').classList.remove('open');
+        }
+
+        /* ── Course filter ── */
+        function filterCourses(cat, el) {
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.course-card').forEach(c => {
+                c.style.display = (cat === 'all' || c.dataset.cat === cat) ? '' : 'none';
+            });
+        }
+
+        /* ── YouTube widget ── */
+        const ytWidget = document.getElementById('ytWidget');
+        const ytToggle = document.getElementById('ytToggle');
+        let ytOpen = false;
+        function toggleYT() {
+            ytOpen = !ytOpen;
+            ytWidget.classList.toggle('hidden', !ytOpen);
+            ytToggle.style.display = ytOpen ? 'none' : '';
+        }
+        function loadVideo(id, el) {
+            document.getElementById('ytFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+            document.querySelectorAll('.yt-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        /* ── Toast ── */
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        /* ── Contact form ── */
+        function submitForm(e) {
+            e.preventDefault();
+            showToast('✅ Mensaje enviado. ¡Te responderemos pronto!');
+            e.target.reset();
+        }
+
+        /* ── Mini Calendar ── */
+        let calDate = new Date(2026, 3, 1); // April 2026
+        const eventDays = [23, 30]; // days with events in current month
+
+        const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const DAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+
+        function renderCalendar() {
+            const year = calDate.getFullYear();
+            const month = calDate.getMonth();
+            document.getElementById('calTitle').textContent = `${MONTHS[month]} ${year}`;
+
+            const grid = document.getElementById('calGrid');
+            grid.innerHTML = '';
+
+            // day names
+            DAYS.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'cal-day-name'; el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+            const startOffset = (firstDay === 0 ? 6 : firstDay - 1); // Monday=0
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrev = new Date(year, month, 0).getDate();
+
+            const today = new Date();
+
+            for (let i = 0; i < 42; i++) {
+                const el = document.createElement('div');
+                el.className = 'cal-day';
+                let day, isOther = false;
+                if (i < startOffset) {
+                    day = daysInPrev - startOffset + i + 1; isOther = true;
+                } else if (i >= startOffset + daysInMonth) {
+                    day = i - startOffset - daysInMonth + 1; isOther = true;
+                } else {
+                    day = i - startOffset + 1;
+                }
+                el.textContent = day;
+                if (isOther) el.classList.add('other-month');
+                if (!isOther && day === today.getDate() &&
+                    month === today.getMonth() && year === today.getFullYear()) {
+                    el.classList.add('today');
+                }
+                if (!isOther && eventDays.includes(day)) el.classList.add('has-event');
+                grid.appendChild(el);
+            }
+        }
+        function prevMonth() { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); }
+        function nextMonth() { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); }
+        renderCalendar();
+
+        /* ── Intersection Observer for fade-up ── */
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.animationPlayState = 'running';
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-up').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+    </script>
 </body>
+
 </html>
