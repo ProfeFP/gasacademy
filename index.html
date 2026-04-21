@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
         rel="stylesheet" />
-
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         /* ─── DESIGN TOKENS ─────────────────────────────────────── */
         :root {
@@ -1833,7 +1833,7 @@
                     </div>
                 </div>
 
-                <form class="contact-form" onsubmit="submitForm(event)">
+                <form id="contactForm" class="contact-form" onsubmit="submitForm(event)">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="fname">Nombre</label>
@@ -2030,10 +2030,39 @@
         }
 
         /* ── Contact form ── */
+        // 🔑 Pega aquí tu URL de la Web App
+        const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzbQ4D7ANy2_fYXUWRA7N_Y_a-RiLoU_MdDFlDekEm_bRWXd-ttVgBiVr7mW5ZUz7eNWQ/exec";
+
         function submitForm(e) {
             e.preventDefault();
-            showToast('✅ Mensaje enviado. ¡Te responderemos pronto!');
-            e.target.reset();
+            const btn = e.target.querySelector('.btn-submit');
+            btn.textContent = 'Enviando…';
+            btn.disabled = true;
+
+            const payload = {
+                from_name: document.getElementById('fname').value,
+                from_email: document.getElementById('femail').value,
+                subject: document.getElementById('fsubject').value,
+                message: document.getElementById('fmsg').value
+            };
+
+            fetch(WEBAPP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(() => {
+                    showToast('✅ Mensaje enviado. ¡Te responderemos pronto!');
+                    e.target.reset();
+                    btn.textContent = 'Enviar mensaje ✉️';
+                    btn.disabled = false;
+                })
+                .catch(() => {
+                    showToast('❌ Error al enviar. Inténtalo de nuevo.');
+                    btn.textContent = 'Enviar mensaje ✉️';
+                    btn.disabled = false;
+                });
         }
 
         /* ── Mini Calendar ── */
