@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de continuidad</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+    <iframe id="myIframe" src=""></iframe>
+
+    <script>
+        // 1. Posa aquí la URL base de la teva WebApp de Google (la que acaba en /exec)
+        const googleWebAppUrl = "https://script.google.com/macros/s/AKfycbyHyczthY4wrlWKVXtn5NqlpZq4v29sEJYI2-fAzUglsWKPuRzSjt1XmbBFjWxKcAyVpQ/exec";
+
+        // 2. Agafem els paràmetres de la URL actual (la de GitHub que obre el QR)
+        const queryString = window.location.search;
+
+        // 3. Combinem la URL de Google amb els paràmetres rebuts
+        const finalUrl = googleWebAppUrl + queryString;
+
+        // 4. Assignem aquesta URL final a l'iframe
+        document.getElementById('myIframe').src = finalUrl;
+    </script>
+</body>
+</html>
