@@ -26,7 +26,7 @@
       backdrop-filter: blur(2px);
       border-radius: 48px;
       box-shadow: 0 20px 35px -12px rgba(0, 80, 120, 0.35);
-      max-width: 520px;
+      max-width: 600px;
       width: 100%;
       padding: 40px 32px;
       text-align: center;
@@ -101,12 +101,30 @@
       width: 100%;
     }
 
-    /* Loader opcional mientras se envía */
     .loading-trace {
       font-size: 12px;
       color: #2273a7;
       margin-top: 16px;
       opacity: 0.8;
+    }
+    
+    /* Área de depuración (solo para pruebas) */
+    .debug {
+      background: #f0f4fa;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 20px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 11px;
+      color: #0a2e4a;
+      border: 1px solid #c0d4f0;
+      word-break: break-all;
+    }
+    .debug summary {
+      cursor: pointer;
+      font-weight: bold;
+      color: #1e6f9f;
     }
   </style>
 </head>
@@ -117,21 +135,33 @@
   </div>
   <h1>¡Gracias, <span id="nombreUsuario">estudiante</span>!</h1>
   <div class="mensaje">
-    Tu asistencia al Curso de Nivel 2 ha quedado <strong> registrada</strong>.
+    Tu asistencia al taller ha quedado <strong>confirmada</strong>.
   </div>
   <div class="datos">
-    📅 Martes, 19 de mayo y Miercoles 20 de mayo  de 9h a 15h <br>
+    📅 Lunes, 20 de abril de 2026 — 17:00 a 18:00 h<br>
     🧾 Código de registro enviado a tu seguimiento.
   </div>
   <p style="font-size: 13px; color: #2c6e9e;">
-    ¿Dudas? Escribe a <a href="mailto:profefp.tk@gmail.com">profefp.tk@gmail.com</a>
+    ¿Dudas? Escribe a <a href="mailto:profefpconia@gmail.com">profefpconia@gmail.com</a>
   </p>
   <div class="barra"></div>
   <div class="loading-trace" id="estadoEnvio">🔄 Registrando tu continuidad...</div>
+  
+  <!-- Área de depuración: muestra la URL y resultado -->
+  <details class="debug">
+    <summary>🔧 Depuración técnica (ver URL enviada)</summary>
+    <div id="debugUrl"></div>
+    <div id="debugResultado"></div>
+  </details>
 </div>
 
 <script>
   (function() {
+    // Elementos de depuración
+    const debugUrlElem = document.getElementById('debugUrl');
+    const debugResultadoElem = document.getElementById('debugResultado');
+    const estadoElem = document.getElementById('estadoEnvio');
+    
     // 🔹 1. Obtener TODOS los parámetros de la URL actual (los que vienen del QR)
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -148,7 +178,8 @@
     
     // Validación mínima
     if (!id || !nombre) {
-      document.getElementById('estadoEnvio').innerHTML = '⚠️ Faltan datos de identificación. Contacta con soporte.';
+      estadoElem.innerHTML = '⚠️ Faltan datos de identificación. Contacta con soporte.';
+      if (debugResultadoElem) debugResultadoElem.innerText = '❌ Error: no se encontraron parámetros "id" y/o "nombre" en la URL.';
       console.warn('Faltan id o nombre', { id, nombre });
       return; // No intentamos enviar porque no tenemos los datos mínimos
     }
@@ -157,45 +188,66 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHyczthY4wrlWKVXtn5NqlpZq4v29sEJYI2-fAzUglsWKPuRzSjt1XmbBFjWxKcAyVpQ/exec";
     
     // 🔹 3. Construir los parámetros que queremos enviar a Google
-    //    - Mantenemos la misma 'accion' que vino (o forzamos 'confirmar_url' si prefieres)
-    //    - Enviamos id, nombre y cualquier otro que pueda ser útil
     const paramsToSend = new URLSearchParams();
-    paramsToSend.set('accion', 'confirmar_url');   // puedes cambiarlo a accion original: paramsToSend.set('accion', accion)
+    paramsToSend.set('accion', 'confirmar_url');   // o podrías usar accion original: paramsToSend.set('accion', accion)
     if (id) paramsToSend.set('id', id);
     if (nombre) paramsToSend.set('nombre', nombre);
-    
     // Opcional: añadir timestamp para evitar caché
     paramsToSend.set('t', Date.now());
     
     const urlDestino = `${APPS_SCRIPT_URL}?${paramsToSend.toString()}`;
     
+    // Mostrar la URL en el área de depuración
+    if (debugUrlElem) {
+      debugUrlElem.innerHTML = `<strong>📡 URL enviada a Google:</strong><br><code>${escapeHtml(urlDestino)}</code>`;
+    }
+    
     // 🔹 4. Enviar la notificación a Google Script de forma fiable
-    //    - Usamos fetch con mode 'no-cors' porque el script responde con un HTML (no necesitamos leer respuesta)
-    //    - Agregamos 'keepalive: true' para que termine aunque se cierre la página
+    estadoElem.innerHTML = '🔄 Enviando petición a Google...';
+    
+    // Usamos fetch para poder capturar errores y saber si la petición se completa
     fetch(urlDestino, {
-      method: 'GET',        // Google Apps Script acepta GET con parámetros en URL
-      mode: 'no-cors',      // Evita errores de CORS, pero no podemos leer la respuesta (no importa)
+      method: 'GET',
+      mode: 'no-cors',   // No podemos leer la respuesta pero evitamos errores CORS
       keepalive: true,
       cache: 'no-store'
-    }).then(() => {
-      // El envío se completó (aunque no sepamos el resultado exacto, el servidor de Google lo recibió)
-      document.getElementById('estadoEnvio').innerHTML = '✅ Registro guardado correctamente.';
-      setTimeout(() => {
-        const elem = document.getElementById('estadoEnvio');
-        if (elem) elem.style.opacity = '0.6';
-      }, 3000);
-    }).catch(err => {
-      console.error('Error al notificar a Google:', err);
-      document.getElementById('estadoEnvio').innerHTML = '⚠️ No se pudo confirmar automáticamente, pero tu asistencia queda anotada localmente.';
+    })
+    .then(() => {
+      // Con 'no-cors', fetch siempre resuelve exitosamente aunque el servidor devuelva error,
+      // porque no podemos ver el estado HTTP. Asumimos que se envió.
+      estadoElem.innerHTML = '✅ Petición enviada (modo no-cors, se asume éxito).';
+      if (debugResultadoElem) {
+        debugResultadoElem.innerHTML = '✅ Fetch completado. No se puede leer la respuesta debido a mode "no-cors", pero la solicitud llegó al servidor.';
+      }
+    })
+    .catch(err => {
+      console.error('Error en fetch:', err);
+      estadoElem.innerHTML = '⚠️ Error al conectar con Google. Revisa consola.';
+      if (debugResultadoElem) {
+        debugResultadoElem.innerHTML = `❌ Error en fetch: ${err.toString()}`;
+      }
     });
     
-    // También como respaldo (sendBeacon si el navegador está por cerrarse)
+    // También intentamos sendBeacon como respaldo (opcional)
     if (navigator.sendBeacon) {
-      // sendBeacon funciona mejor con POST, pero nuestra API espera GET. 
-      // No obstante, podemos llamar a fetch igual; sendBeacon no es necesario aquí.
-      // Solo lo mencionamos como mejora extra: realizamos un segundo envío silencioso con keepalive
       const beaconUrl = `${APPS_SCRIPT_URL}?${paramsToSend.toString()}&beacon=1`;
-      navigator.sendBeacon(beaconUrl);
+      const beaconSent = navigator.sendBeacon(beaconUrl);
+      if (debugResultadoElem) {
+        debugResultadoElem.innerHTML += `<br>📡 sendBeacon: ${beaconSent ? 'enviado' : 'falló'}`;
+      }
+    }
+    
+    // Helper para escapar HTML en depuración
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+        return c;
+      });
     }
   })();
 </script>
