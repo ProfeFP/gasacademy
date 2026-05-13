@@ -76,16 +76,6 @@
       font-size: 0.95rem;
     }
 
-    .badge {
-      background: #cbe4fe;
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      color: #035c8f;
-      margin-top: 8px;
-    }
-
     a {
       color: #1e6f9f;
       text-decoration: none;
@@ -108,7 +98,7 @@
       opacity: 0.8;
     }
 
-    /* NUEVO ESTILO PARA EL BOTÓN */
+    /* Botón corregido */
     .btn-curso {
       display: inline-block;
       background: linear-gradient(105deg, #2b6cb0, #3182ce);
@@ -142,22 +132,18 @@
   </div>
   <h1>¡Gracias, <span id="nombreUsuario">estudiante</span>!</h1>
   <div class="mensaje">
-    Tu asistencia al Curso de Nivel 2 ha quedado <strong> registrada</strong>.
+    Tu asistencia al taller ha quedado <strong>confirmada</strong>.
   </div>
   <div class="datos">
-    📅 Martes 19 y Miercoles 20 de Mayo de 9h a 15h <br>
+    📅 Lunes, 20 de abril de 2026 — 17:00 a 18:00 h<br>
     🧾 Código de registro enviado a tu seguimiento.
   </div>
   <p style="font-size: 13px; color: #2c6e9e;">
     ¿Dudas? Escribe a <a href="mailto:profefpconia@gmail.com">profefpconia@gmail.com</a>
   </p>
   
-  <!-- BOTÓN CENTRADO -->
-  <div style="text-align: center;">
-    <a href="URL_DEL_CURSO_SIN_PARAMETROS" class="btn-curso">
-      🚀 Acceder al curso de nivel 2
-    </a>
-  </div>
+  <!-- El botón se generará dinámicamente con JavaScript para asegurar la URL correcta -->
+  <div style="text-align: center;" id="botonContainer"></div>
   
   <div class="barra"></div>
   <div class="loading-trace" id="estadoEnvio">🔄 Registrando tu continuidad...</div>
@@ -165,34 +151,70 @@
 
 <script>
   (function() {
-    // Parámetros de la URL
+    // ============================================================
+    // 1. CONFIGURACIÓN
+    // ============================================================
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHyczthY4wrlWKVXtn5NqlpZq4v29sEJYI2-fAzUglsWKPuRzSjt1XmbBFjWxKcAyVpQ/exec";
+    
+    // ============================================================
+    // 2. LEER PARÁMETROS DE LA URL (compatible con "nombre" o "nombre2")
+    // ============================================================
     const urlParams = new URLSearchParams(window.location.search);
     let accion = urlParams.get('accion') || 'seguir';
     let id = urlParams.get('id');
-    let nombre = urlParams.get('nombre');
+    // Priorizar "nombre2" si existe, si no, usar "nombre"
+    let nombre = urlParams.get('nombre2') || urlParams.get('nombre');
     
-    if (nombre) {
-      const nombreSpan = document.getElementById('nombreUsuario');
-      if (nombreSpan) nombreSpan.innerText = decodeURIComponent(nombre);
+    // Mostrar el nombre en el saludo (si no hay, muestra "estudiante")
+    const nombreSpan = document.getElementById('nombreUsuario');
+    if (nombreSpan) {
+      if (nombre) {
+        nombreSpan.innerText = decodeURIComponent(nombre);
+      } else {
+        nombreSpan.innerText = "estudiante";
+      }
     }
     
-    if (!id || !nombre) {
-      document.getElementById('estadoEnvio').innerHTML = '⚠️ Faltan datos de identificación. Contacta con soporte.';
-      console.warn('Faltan id o nombre', { id, nombre });
+    // Validar que tenemos id (opcionalmente nombre, pero al menos id)
+    if (!id) {
+      document.getElementById('estadoEnvio').innerHTML = '⚠️ Falta el identificador del estudiante. Contacta con soporte.';
+      console.warn('Falta el parámetro id');
+      // Aún así mostramos el botón, pero no enviamos notificación
+    }
+    
+    // ============================================================
+    // 3. GENERAR EL BOTÓN CON LA URL BASE (SIN PARÁMETROS)
+    // ============================================================
+    const botonContainer = document.getElementById('botonContainer');
+    if (botonContainer) {
+      // Creamos el enlace con la URL base del script (sin query string)
+      const enlace = document.createElement('a');
+      enlace.href = APPS_SCRIPT_URL;   // URL limpia, sin ningún parámetro
+      enlace.className = 'btn-curso';
+      enlace.innerText = '🚀 Acceder al curso de nivel 2';
+      // Opcional: abrir en nueva pestaña (si quieres)
+      // enlace.target = '_blank';
+      botonContainer.appendChild(enlace);
+    }
+    
+    // ============================================================
+    // 4. ENVIAR NOTIFICACIÓN A GOOGLE APPS SCRIPT (solo si tenemos id)
+    // ============================================================
+    if (!id) {
+      // Si no hay id, no enviamos nada
       return;
     }
     
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHyczthY4wrlWKVXtn5NqlpZq4v29sEJYI2-fAzUglsWKPuRzSjt1XmbBFjWxKcAyVpQ/exec";
-    
+    // Construir los parámetros a enviar (respetando accion, id y nombre)
     const paramsToSend = new URLSearchParams();
-    paramsToSend.set('accion', accion);      // AHORA RESPETA EL VALOR ORIGINAL
-    if (id) paramsToSend.set('id', id);
+    paramsToSend.set('accion', accion);
+    paramsToSend.set('id', id);
     if (nombre) paramsToSend.set('nombre', nombre);
-    paramsToSend.set('t', Date.now());
+    paramsToSend.set('t', Date.now()); // evitar caché
     
     const urlDestino = `${APPS_SCRIPT_URL}?${paramsToSend.toString()}`;
     
-    // Envío a Google
+    // Envío con fetch (mode no-cors, keepalive)
     fetch(urlDestino, {
       method: 'GET',
       mode: 'no-cors',
@@ -208,10 +230,14 @@
       console.error('Error al notificar a Google:', err);
       document.getElementById('estadoEnvio').innerHTML = '⚠️ No se pudo confirmar automáticamente, pero tu asistencia queda anotada localmente.';
     });
-    
-    // Beacon de respaldo
-   
+    /*
+    // Beacon de respaldo (solo si sendBeacon está disponible)
+    if (navigator.sendBeacon) {
+      const beaconUrl = `${APPS_SCRIPT_URL}?${paramsToSend.toString()}&beacon=1`;
+      navigator.sendBeacon(beaconUrl);
     }
+    */
+    
   })();
 </script>
 </body>
