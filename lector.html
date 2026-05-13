@@ -135,10 +135,10 @@
   </div>
   <h1>¡Gracias, <span id="nombreUsuario">estudiante</span>!</h1>
   <div class="mensaje">
-    Tu asistencia al taller ha quedado <strong>confirmada</strong>.
+    Tu asistencia alcurso ha quedado <strong>confirmada</strong>.
   </div>
   <div class="datos">
-    📅 Lunes, 20 de abril de 2026 — 17:00 a 18:00 h<br>
+    📅 Martes dia 19 y Miercoles dia 20 de Abril de 9h a 15h<br>
     🧾 Código de registro enviado a tu seguimiento.
   </div>
   <p style="font-size: 13px; color: #2c6e9e;">
@@ -189,7 +189,7 @@
     
     // 🔹 3. Construir los parámetros que queremos enviar a Google
     const paramsToSend = new URLSearchParams();
-    paramsToSend.set('accion', 'confirmar_url');   // o podrías usar accion original: paramsToSend.set('accion', accion)
+    paramsToSend.set('accion', 'seguir');   // o podrías usar accion original: paramsToSend.set('accion', accion)
     if (id) paramsToSend.set('id', id);
     if (nombre) paramsToSend.set('nombre', nombre);
     // Opcional: añadir timestamp para evitar caché
