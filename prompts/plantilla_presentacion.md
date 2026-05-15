@@ -1,0 +1,64 @@
+Para el contenido de la presentación usa la fuente seleccionada "Guia de Supervisión y Gestión de Riesgos Financieros" y para el estilo de las diapostivas comobase usa esta plantilla que te adjunto {
+  "task_description": "Generar una diapositiva de presentación profesional siguiendo el diseño visual y la jerarquía de la imagen de referencia plantilla_presentackion.png.",
+  "visual_references": {
+    "source_file": "plantilla_presentackion.png",
+    "layout_style": "Modern corporate-academic overlap",
+    "color_palette": {
+      "background_base": "Deep Navy Blue (#2D365C)",
+      "content_card": "Cream Light Beige (#F5F1E1)",
+      "accent_text": "Pure White (#FFFFFF)",
+      "main_text": "Dark Grey/Black (#1A1A1A)",
+      "overlay_opacity": "Low-opacity watermark pattern"
+    }
+  },
+  "layout_components": {
+    "background": {
+      "texture": "Patrón sutil de billetes de dólar en escala de grises/azules con baja opacidad sobre fondo azul marino.",
+      "elements": "Watermark currency motif"
+    },
+    "image_container": {
+      "position": "Top-left quadrant",
+      "style": "Rectángulo con esquinas redondeadas (rounded corners)",
+      "content": "Fotografía de alta resolución de estudiantes en un entorno educativo moderno.",
+      "border": "Borde blanco delgado opcional para contraste."
+    },
+    "title_section": {
+      "position": "Bottom-left, below image",
+      "font_style": "Sans Serif, Bold, Extra Large",
+      "color": "#FFFFFF",
+      "alignment": "Left-aligned",
+      "elements": ["Main Title", "Subtitle/Tagline"]
+    },
+    "content_card": {
+      "position": "Right side, vertically centered",
+      "style": "Contenedor beige con esquinas muy redondeadas",
+      "list_structure": {
+        "item_layout": "Horizontal row with icon and text",
+        "icon_style": "Círculo de color arena/dorado suave con icono de lupa (o temático) en blanco.",
+        "text_hierarchy": {
+          "heading": "Bold Sans Serif, medium size",
+          "description": "Regular Sans Serif, small size, high legibility"
+        }
+      }
+    }
+  },
+  "content_placeholders": {
+    "title": "[Insert Title Here]",
+    "subtitle": "[Insert Subtitle/Academy Name]",
+    "list_items": [
+      {
+        "header": "[Service Name 1]",
+        "description": "[Brief description of the service or program]"
+      },
+      {
+        "header": "[Service Name 2]",
+        "description": "[Brief description of the service or program]"
+      }
+    ]
+  },
+  "technical_specifications": {
+    "aspect_ratio": "16:9",
+    "font_family_suggestion": "Montserrat, Open Sans or Helvetica Neue",
+    "rendering_instructions": "Mantener el equilibrio de pesos visuales de plantilla_presentackion.png, asegurando que el bloque de texto derecho no sature el espacio negativo del fondo."
+  }
+}
